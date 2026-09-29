@@ -1,0 +1,66 @@
+{{define "asset_form.html"}}{{template "header" .}}
+<div class="mb-4">
+  {{if .Asset.ID}}<a href="/assets/{{.Asset.ID}}" class="text-decoration-none">← 返回详情</a>{{else}}<a href="/" class="text-decoration-none">← 返回台账</a>{{end}}
+  <h1 class="h3 mt-3 mb-1">{{.Title}}</h1>
+  <p class="muted mb-0">{{if .Asset.ID}}修改编号组成字段会生成新标签编号；保存后请重新贴标，旧号不会复用。{{else}}系统按表格规则生成标签编号；单件序号可填写或留空自动分配。{{end}}</p>
+</div>
+
+<form method="post" action="{{if .Asset.ID}}/assets/{{.Asset.ID}}/edit{{else}}/assets/new{{end}}" enctype="multipart/form-data">
+  <input type="hidden" name="csrf" value="{{.CSRF}}">
+  <div class="card mb-4"><div class="card-body p-3 p-md-4">
+    <h2 class="h5 mb-3">基本信息</h2>
+    <div class="row g-3">
+      <div class="col-md-4"><label class="form-label" for="name">名称 *</label><input class="form-control" id="name" name="name" maxlength="160" required value="{{.Asset.Name}}"></div>
+      <div class="col-md-4"><label class="form-label" for="category">类别 *</label><select class="form-select" id="category" name="category" required><option value="">请选择</option>{{range $v := (listCategories)}}<option value="{{$v}}" {{if eq $.Asset.Category $v}}selected{{end}}>{{$v}}</option>{{end}}</select></div>
+      <div class="col-md-2"><label class="form-label" for="group">组别 *</label><select class="form-select" id="group" name="group" required><option value="">请选择</option>{{range $v := (listGroups)}}<option value="{{$v}}" {{if eq $.Asset.Group $v}}selected{{end}}>{{$v}}</option>{{end}}</select></div>
+      <div class="col-md-2"><label class="form-label" for="audience">适用 *</label><select class="form-select" id="audience" name="audience" required><option value="">请选择</option>{{range $v := (listAudiences)}}<option value="{{$v}}" {{if eq $.Asset.Audience $v}}selected{{end}}>{{$v}}</option>{{end}}</select></div>
+      <div class="col-md-3"><label class="form-label" for="color">颜色 *</label><select class="form-select" id="color" name="color" required><option value="">请选择</option>{{range .Options.color}}<option value="{{.Name}}" {{if eq $.Asset.Color .Name}}selected{{end}}>{{.Name}}</option>{{end}}</select></div>
+      <div class="col-md-3"><label class="form-label" for="size">尺码 / 规格 *</label><select class="form-select" id="size" name="size" required><option value="">请选择</option>{{range .Options.size}}<option value="{{.Name}}" {{if eq $.Asset.Size .Name}}selected{{end}}>{{.Name}}</option>{{end}}</select></div>
+      <div class="col-md-3"><label class="form-label" for="location">存放位置</label><select class="form-select" id="location" name="location"><option value="">未指定</option>{{range .Options.location}}<option value="{{.Name}}" {{if eq $.Asset.Location .Name}}selected{{end}}>{{.Name}}</option>{{end}}</select></div>
+      <div class="col-md-3"><label class="form-label" for="status">状态 *</label><select class="form-select" id="status" name="status"><option value="在库" {{if eq .Asset.Status "在库"}}selected{{end}}>在库</option><option value="停用" {{if eq .Asset.Status "停用"}}selected{{end}}>停用</option></select></div>
+      <div class="col-12"><label class="form-label" for="keywords">搜索关键词</label><input class="form-control" id="keywords" name="keywords" maxlength="500" value="{{.Asset.Keywords}}" placeholder="拍摄;运动;百搭"><div class="form-text">多个词用英文分号分隔。</div></div>
+    </div>
+  </div></div>
+
+  <div class="card mb-4"><div class="card-body p-3 p-md-4">
+    <h2 class="h5 mb-3">编号组成</h2>
+    <div class="row g-3">
+      <div class="col-md-3"><label class="form-label" for="design_no">设计序号 * <span class="fw-normal text-secondary">1–99</span></label><input class="form-control" type="number" id="design_no" name="design_no" min="1" max="99" required value="{{if .Asset.DesignNo}}{{.Asset.DesignNo}}{{end}}"></div>
+      <div class="col-md-3"><label class="form-label" for="item_no">单件序号 <span class="fw-normal text-secondary">1–99</span></label><input class="form-control" type="number" id="item_no" name="item_no" min="1" max="99" value="{{if .Asset.ItemNo}}{{.Asset.ItemNo}}{{end}}" placeholder="留空自动分配"></div>
+      <div class="col-md-3 shoe-field"><label class="form-label" for="shoe_type">鞋型 *</label><select class="form-select" id="shoe_type" name="shoe_type"><option value="">请选择</option>{{range $v := (listShoeTypes)}}<option value="{{$v}}" {{if eq $.Asset.ShoeType $v}}selected{{end}}>{{$v}}</option>{{end}}</select></div>
+      <div class="col-md-3 shoe-field"><label class="form-label" for="shoe_height">鞋帮 *</label><select class="form-select" id="shoe_height" name="shoe_height"><option value="">请选择</option>{{range $v := (listShoeHeights)}}<option value="{{$v}}" {{if eq $.Asset.ShoeHeight $v}}selected{{end}}>{{$v}}</option>{{end}}</select></div>
+      <div class="col-md-3 shoe-field"><label class="form-label" for="closure">穿脱结构 *</label><select class="form-select" id="closure" name="closure"><option value="">请选择</option>{{range $v := (listClosures)}}<option value="{{$v}}" {{if eq $.Asset.Closure $v}}selected{{end}}>{{$v}}</option>{{end}}</select></div>
+    </div>
+    <p class="form-text mt-3 mb-0">鞋类选择鞋型、鞋帮和穿脱结构。修改款式或规格时，未改动的单件序号会自动重新分配；手动修改序号时会检查是否已使用。</p>
+  </div></div>
+
+  <div class="card mb-4"><div class="card-body p-3 p-md-4">
+    <h2 class="h5 mb-3">编号、库存与校验</h2>
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label">标签编号·自动</label><div class="form-control bg-light">{{if .Asset.Tag}}{{.Asset.Tag}}{{else}}保存后生成{{end}}</div></div>
+      <div class="col-md-3"><label class="form-label">款式编号·自动</label><div class="form-control bg-light">{{if .Asset.StyleCode}}{{.Asset.StyleCode}}{{else}}保存后生成{{end}}</div></div>
+      <div class="col-md-3"><label class="form-label">规格码·自动</label><div class="form-control bg-light">{{if .Asset.SizeCode}}{{.Asset.SizeCode}}{{else}}保存后生成{{end}}</div></div>
+      <div class="col-md-6"><label class="form-label" for="same_stock">同款同色同尺码在库</label><input class="form-control" type="number" id="same_stock" name="same_stock" min="0" step="1" value="{{with .Asset.SameStockOverride}}{{.}}{{end}}" placeholder="自动：{{.SameStock}} 件"></div>
+      <div class="col-md-6"><label class="form-label" for="validation">校验</label><select class="form-select" id="validation" name="validation"><option value="" {{if eq .Asset.ValidationOverride ""}}selected{{end}}>自动校验{{if eq .Asset.ValidationOverride ""}}（{{.Validation}}）{{end}}</option><option value="正常" {{if eq .Asset.ValidationOverride "正常"}}selected{{end}}>正常</option><option value="异常" {{if eq .Asset.ValidationOverride "异常"}}selected{{end}}>异常</option><option value="待校验" {{if eq .Asset.ValidationOverride "待校验"}}selected{{end}}>待校验</option></select></div>
+    </div>
+  </div></div>
+
+  <div class="card mb-4"><div class="card-body p-3 p-md-4"><h2 class="h5 mb-3">照片</h2>{{if .Asset.Photo}}<img src="/uploads/{{.Asset.Photo}}" alt="当前照片" class="img-thumbnail mb-3" style="max-width:200px;max-height:180px">{{end}}<label class="form-label" for="photo">上传照片</label><input id="photo" type="file" class="form-control" name="photo" accept="image/jpeg,image/png,image/webp">{{if .Asset.Photo}}<div class="form-check mt-2"><input class="form-check-input" type="checkbox" id="remove_photo" name="remove_photo" value="1"><label class="form-check-label" for="remove_photo">移除当前照片</label></div>{{end}}<div class="form-text">JPEG、PNG 或 WebP，不超过 5 MB。</div></div></div>
+  <div class="d-flex gap-2"><button class="btn btn-primary px-4">{{if .Asset.ID}}保存修改{{else}}新增资产{{end}}</button><a class="btn btn-outline-secondary" href="{{if .Asset.ID}}/assets/{{.Asset.ID}}{{else}}/{{end}}">取消</a></div>
+</form>
+
+<script>
+const category = document.getElementById('category');
+function shoeFields() {
+  const enabled = category.value === '{{shoeName}}';
+  document.querySelectorAll('.shoe-field').forEach(el => {
+    el.style.display = enabled ? '' : 'none';
+    const select = el.querySelector('select');
+    select.disabled = !enabled;
+    select.required = enabled;
+  });
+}
+category.addEventListener('change', shoeFields);
+shoeFields();
+</script>
+{{template "footer" .}}{{end}}

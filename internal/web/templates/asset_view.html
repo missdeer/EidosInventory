@@ -1,0 +1,75 @@
+{{define "asset_view.html"}}{{template "header" .}}
+<div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+  <div>
+    <a href="/" class="text-decoration-none">← 返回台账</a>
+    <div class="d-flex align-items-center gap-2 mt-3 mb-1">
+      <h1 class="h3 mb-0">{{.Asset.Name}}</h1>
+      {{if eq .Asset.Status "在库"}}<span class="badge text-bg-success">在库</span>{{else}}<span class="badge text-bg-secondary">停用</span>{{end}}
+    </div>
+    <div class="text-secondary">标签编号 <code>{{.Asset.Tag}}</code></div>
+  </div>
+  {{if canWrite .User.Role}}<a class="btn btn-primary flex-shrink-0" href="/assets/{{.Asset.ID}}/edit">编辑资产</a>{{end}}
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card h-100"><div class="card-body p-3 p-md-4">
+      <h2 class="h5 mb-3">主图</h2>
+      {{if .Asset.Photo}}
+      <img class="img-fluid rounded w-100" style="max-height:420px;object-fit:contain;background:#f6f7f9" src="/uploads/{{.Asset.Photo}}" alt="{{.Asset.Name}}">
+      <a class="btn btn-outline-primary mt-3" href="/uploads/{{.Asset.Photo}}?download=1" download>下载</a>
+      {{else}}<div class="rounded bg-light text-secondary d-grid" style="height:260px;place-items:center">暂无照片</div>{{end}}
+    </div></div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card mb-4"><div class="card-body p-3 p-md-4">
+      <h2 class="h5 mb-3">基本信息</h2>
+      <div class="row g-3">
+        {{with .Asset}}
+        <div class="col-6 col-md-4"><div class="small muted">类别</div><div>{{.Category}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">组别</div><div>{{.Group}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">适用</div><div>{{.Audience}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">颜色</div><div>{{.Color}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">尺码 / 规格</div><div>{{.Size}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">存放位置</div><div>{{if .Location}}{{.Location}}{{else}}—{{end}}</div></div>
+        <div class="col-12"><div class="small muted">搜索关键词</div><div>{{if .Keywords}}{{.Keywords}}{{else}}—{{end}}</div></div>
+        {{end}}
+      </div>
+    </div></div>
+
+    <div class="card mb-4"><div class="card-body p-3 p-md-4">
+      <h2 class="h5 mb-3">编号与库存</h2>
+      <div class="row g-3">
+        <div class="col-12"><div class="small muted">标签编号</div><code class="fs-5">{{.Asset.Tag}}</code></div>
+        <div class="col-6 col-md-4"><div class="small muted">款式编号</div><div>{{.Asset.StyleCode}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">规格码</div><div>{{.Asset.SizeCode}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">设计序号</div><div>{{.Asset.DesignNo}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">单件序号</div><div>{{.Asset.ItemNo}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">同款同色同尺码在库</div><div>{{.SameStock}} 件</div></div>
+        <div class="col-12"><div class="small muted">校验</div><div>{{if eq .Validation "正常"}}<span class="text-success">正常</span>{{else}}<span class="text-danger">{{.Validation}}</span>{{end}}</div></div>
+        {{if .OldTags}}<div class="col-12"><div class="small muted">历史标签编号</div><div>{{range $i, $tag := .OldTags}}{{if $i}}、{{end}}<code>{{$tag}}</code>{{end}}</div></div>{{end}}
+      </div>
+    </div></div>
+
+    {{if isShoe .Asset.Category}}
+    <div class="card mb-4"><div class="card-body p-3 p-md-4">
+      <h2 class="h5 mb-3">鞋类属性</h2>
+      <div class="row g-3">
+        <div class="col-6 col-md-4"><div class="small muted">鞋型</div><div>{{.Asset.ShoeType}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">鞋帮</div><div>{{.Asset.ShoeHeight}}</div></div>
+        <div class="col-6 col-md-4"><div class="small muted">穿脱结构</div><div>{{.Asset.Closure}}</div></div>
+      </div>
+    </div></div>
+    {{end}}
+
+    <div class="card"><div class="card-body p-3 p-md-4">
+      <h2 class="h5 mb-3">记录信息</h2>
+      <div class="row g-3">
+        <div class="col-6"><div class="small muted">记录 ID</div><div>{{.Asset.ID}}</div></div>
+        <div class="col-6"><div class="small muted">创建时间</div><div>{{.Asset.CreatedAt.Format "2006-01-02 15:04"}}</div></div>
+        <div class="col-6"><div class="small muted">最近更新</div><div>{{.Asset.UpdatedAt.Format "2006-01-02 15:04"}}</div></div>
+      </div>
+    </div></div>
+  </div>
+</div>
+{{template "footer" .}}{{end}}
